@@ -1,0 +1,37 @@
+{
+  "name": "vite-boilerplate",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "prettier-watch": "onchange \"**/*\" -- prettier --write --ignore-unknown {{changed}}",
+    "dev": "concurrently \"vite dev --config vite.config.ts\" \"npm run prettier-watch\"",
+    "build": "concurrently \"npx prettier --write .\" \"vite build --config vite.config.ts\"",
+    "preview": "vite --config preview"
+  },
+  "dependencies": {
+    "lucide-react": "^0.554.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sass": "^1.62.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
+    "@vitejs/plugin-react": "^3.1.0",
+    "concurrently": "^8.0.1",
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-standard-with-typescript": "^34.0.1",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-react": "^7.32.2",
+    "onchange": "^7.1.0",
+    "prettier": "2.8.7",
+    "terser": "^5.16.9",
+    "typescript": "*",
+    "vite": "^4.2.0"
+  }
+}
