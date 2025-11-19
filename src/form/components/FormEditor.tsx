@@ -449,10 +449,6 @@ export const FormEditor = ({ form, onSave, onCancel }: FormEditorProps) => {
                               <option value="single_select">Single Select</option>
                               <option value="text">Text</option>
                               {formData.type === 'SELL' && <option value="address">Address</option>}
-                              <option value="number">Number</option>
-                              <option value="date">Date</option>
-                              <option value="email">Email</option>
-                              <option value="phone">Phone</option>
                             </select>
                             {step.fieldType === 'address' && (
                               <div
