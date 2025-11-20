@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { FormEditor, FormsList } from '.';
+import { Modal } from 'antd';
+import { useDisclosure } from '../../core/hooks';
 
 export const FormsApp = () => {
-  const [view, setView] = useState('list'); // 'list' or 'editor'
   const [editingForm, setEditingForm] = useState(null);
   const [forms, setForms] = useState([
     {
@@ -239,7 +240,6 @@ export const FormsApp = () => {
 
   const handleEdit = (form: any) => {
     setEditingForm(form);
-    setView('editor');
   };
 
   const handleSave = (formData: any) => {
@@ -255,27 +255,12 @@ export const FormsApp = () => {
       formData.submissionsCount = 0;
       setForms([...forms, formData]);
     }
-    setView('list');
     alert('Formulario guardado exitosamente');
-  };
-
-  const handleCancel = () => {
-    setView('list');
-  };
-
-  const handleDelete = (form: any) => {
-    if (confirm(`¿Eliminar "${form.name}"?`)) {
-      setForms(forms.filter(f => f.id !== form.id));
-    }
   };
 
   return (
     <div>
-      {view === 'list' ? (
-        <FormsList forms={forms} onEdit={handleEdit} onDelete={handleDelete} />
-      ) : (
-        <FormEditor form={editingForm} onSave={handleSave} onCancel={handleCancel} />
-      )}
+      <FormsList forms={forms} />
     </div>
   );
 };

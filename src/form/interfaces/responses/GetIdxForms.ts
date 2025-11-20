@@ -20,6 +20,10 @@ export interface IdxForm {
 
 export interface Step {
   question: string;
-  quetionType: string;
+  quetionType: QuestionType;
   options: string[];
+}
+
+export enum QuestionType {
+  SelectSimple = 'select_simple',
 }

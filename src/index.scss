@@ -139,16 +139,6 @@ body {
 }
 
 /* ===== FORM EDITOR ===== */
-.form-editor-container {
-  background: #f5f5f7;
-  min-height: 100vh;
-}
-
-.editor-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-}
 
 .editor-section {
   background: white;
@@ -356,6 +346,8 @@ body {
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .options-list {

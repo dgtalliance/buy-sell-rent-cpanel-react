@@ -1,5 +1,5 @@
 import { config } from '../../core/config';
-import { GetIdxForms } from '../interfaces/responses';
+import { GetIdxForms, IdxForm } from '../interfaces/responses';
 
 export class IdxFormsService {
   private baseUrl = `${config.api.idxboost}/idxforms`;
@@ -22,8 +22,15 @@ export class IdxFormsService {
     return res.json();
   }
 
-  async getById(id: number) {
-    const res = await fetch(`${this.baseUrl}/${id}`);
+  async getById({
+    id,
+    registration_key,
+  }: {
+    id: string;
+    registration_key: string;
+  }): Promise<IdxForm> {
+    const query = this.buildQuery({ registration_key });
+    const res = await fetch(`${this.baseUrl}/${id}?${query}`);
     if (!res.ok) throw new Error('Error fetching idxform by ID');
     return res.json();
   }
