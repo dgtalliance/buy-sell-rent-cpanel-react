@@ -2,17 +2,13 @@ import { useEffect, useState } from 'react';
 import { EditIcon, TrashIcon } from 'lucide-react';
 import { useIdxFormsService } from '../hooks';
 import { config } from '../../core/config';
-import moment from 'moment';
 import { Modal } from 'antd';
 import { FormEditor } from '.';
 import { useDisclosure } from '../../core/hooks';
 import { IdxForm } from '../interfaces/responses';
+import moment from 'moment';
 
-interface FormsListProps {
-  forms: any[];
-}
-
-export const FormsList = ({ forms }: FormsListProps) => {
+export const FormsList = () => {
   const idxFormsService = useIdxFormsService();
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [idxForms, setIdxForms] = useState<IdxForm[]>();
