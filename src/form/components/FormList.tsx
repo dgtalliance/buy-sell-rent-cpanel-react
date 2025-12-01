@@ -69,7 +69,7 @@ export const FormsList = () => {
                 <td>{form.steps.length}</td>
                 <td>{moment(form.created_at).format('DD/MM/YYYY')}</td>
                 <td>{moment(form.modified_in).format('DD/MM/YYYY')}</td>
-                <td>{'???'}</td>
+                <td>{'No data'}</td>
                 <td>
                   <div className="action-buttons">
                     <button

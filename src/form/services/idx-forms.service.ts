@@ -54,13 +54,24 @@ export class IdxFormsService {
     return res.json();
   }
 
-  async update(id: number, data: any) {
-    const res = await fetch(`${this.baseUrl}/${id}`, {
+  async update({
+    id,
+    registration_key,
+    data,
+  }: {
+    id: string;
+    registration_key: string;
+    data: any;
+  }): Promise<{
+    status: 'updated';
+  }> {
+    const query = this.buildQuery({ registration_key });
+    const res = await fetch(`${this.baseUrl}/${id}?${query}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, registration_key }),
     });
 
     if (!res.ok) throw new Error('Error updating idxform');

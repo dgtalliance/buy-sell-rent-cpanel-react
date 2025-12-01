@@ -1,4 +1,4 @@
-import { Field, FieldArray, Formik, FormikErrors, getIn, useFormikContext } from 'formik';
+import { Field, FieldArray, Formik, getIn, useFormikContext } from 'formik';
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -13,8 +13,9 @@ import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { useIdxFormsService } from '../hooks';
 import { config } from '../../core/config';
-import { IdxForm, QuestionType, Step } from '../interfaces/responses';
+import { FormType, IdxForm, QuestionType } from '../interfaces/responses';
 import { FormErrorMessage } from './FormErrorMessage';
+import { useToast } from '../../core/hooks';
 
 interface FormEditorProps {
   formId: string;
@@ -24,7 +25,7 @@ interface FormEditorProps {
 const FormSteps = () => {
   const { values, setValues, errors } =
     useFormikContext<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key'>>();
-  console.log({ errors });
+  console.log({ errors, values });
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
   const [draggedStep, setDraggedStep] = useState<number | null>(null);
 
@@ -56,19 +57,18 @@ const FormSteps = () => {
   };
   return (
     <FieldArray name="steps">
-      {({ push, remove }) => (
+      {({ remove, insert }) => (
         <div className="editor-section">
           <div className="section-header">
             <h3 className="section-title">
-              Form Steps ({values.steps.filter((s: any) => !s.isDefault).length})
+              Form Steps ({values.steps.filter(s => !s.is_default).length})
             </h3>
             <button
               className="btn-add-step"
               onClick={() =>
-                push({
+                insert(values.steps.length - 1, {
                   question: 'Untitled',
-                  quetionType: QuestionType.SelectSimple,
-                  options: ['OPTION 1'],
+                  questionType: QuestionType.Text,
                 })
               }
             >
@@ -76,7 +76,7 @@ const FormSteps = () => {
             </button>
           </div>
 
-          {values.steps.filter((s: any) => !s.isDefault).length === 0 ? (
+          {values.steps.filter(s => !s.is_default).length === 0 ? (
             <div className="empty-steps">
               <p>No steps configured yet.</p>
               <p style={{ marginTop: '8px', fontSize: '13px' }}>
@@ -87,45 +87,45 @@ const FormSteps = () => {
             <div className="steps-list">
               {values.steps.map((step, index) => {
                 // Contact Information Step (default)
-                // if (step.isDefault) {
-                //   return (
-                //     <div
-                //       key={step.id}
-                //       className="step-card"
-                //       style={{ borderColor: '#34d399', background: '#f0fdf4' }}
-                //     >
-                //       <div
-                //         className="step-header"
-                //         style={{ background: '#f0fdf4', cursor: 'default' }}
-                //       >
-                //         <div className="step-header-left">
-                //           <span className="step-number" style={{ background: '#34d399' }}>
-                //             Final
-                //           </span>
-                //           <span className="step-question-preview">{step.question}</span>
-                //           <span
-                //             style={{
-                //               display: 'inline-block',
-                //               padding: '3px 10px',
-                //               background: '#34d399',
-                //               color: 'white',
-                //               borderRadius: '10px',
-                //               fontSize: '11px',
-                //               fontWeight: '600',
-                //             }}
-                //           >
-                //             Pre-built
-                //           </span>
-                //         </div>
-                //         <div className="step-header-right">
-                //           <span style={{ fontSize: '12px', color: '#86868b' }}>
-                //             Email, Name, Phone, Comments
-                //           </span>
-                //         </div>
-                //       </div>
-                //     </div>
-                //   );
-                // }
+                if (step.is_default) {
+                  return (
+                    <div
+                      key={index}
+                      className="step-card"
+                      style={{ borderColor: '#34d399', background: '#f0fdf4' }}
+                    >
+                      <div
+                        className="step-header"
+                        style={{ background: '#f0fdf4', cursor: 'default' }}
+                      >
+                        <div className="step-header-left">
+                          <span className="step-number" style={{ background: '#34d399' }}>
+                            Final
+                          </span>
+                          <span className="step-question-preview">{step.question}</span>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '3px 10px',
+                              background: '#34d399',
+                              color: 'white',
+                              borderRadius: '10px',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                            }}
+                          >
+                            Pre-built
+                          </span>
+                        </div>
+                        <div className="step-header-right">
+                          <span style={{ fontSize: '12px', color: '#86868b' }}>
+                            Email, Name, Phone, Comments
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
 
                 // Regular step
                 return (
@@ -181,17 +181,23 @@ const FormSteps = () => {
                             <label>Field Type</label>
                             <Field
                               as="select"
-                              name={`steps[${index}].quetionType`}
+                              name={`steps[${index}].questionType`}
                               className="form-select"
                             >
-                              <option value={QuestionType.SelectSimple}>Single Select</option>
-                              <option value="text">Text</option>
-                              {values.form_type === 'SELL' && (
-                                <option value="address">Address</option>
-                              )}
+                              <option value={QuestionType.SelectSingle}>Single Select</option>
+                              <option value={QuestionType.Text}>Text</option>
+                              {values.form_type === FormType.Sell &&
+                                (values.steps.findIndex(
+                                  item => item.questionType === QuestionType.Address
+                                ) === index ||
+                                  values.steps.findIndex(
+                                    item => item.questionType === QuestionType.Address
+                                  ) === -1) && (
+                                  <option value={QuestionType.Address}>Address</option>
+                                )}
                             </Field>
-                            <FormErrorMessage name={`steps[${index}].quetionType`} />
-                            {step.question === 'address' && (
+                            <FormErrorMessage name={`steps[${index}].questionType`} />
+                            {step.questionType === QuestionType.Address && (
                               <div
                                 style={{
                                   marginTop: '8px',
@@ -219,7 +225,7 @@ const FormSteps = () => {
                           </div>
                         </div>
 
-                        {step.quetionType === QuestionType.SelectSimple && (
+                        {step.questionType === QuestionType.SelectSingle && (
                           <FieldArray name={`steps[${index}].options`}>
                             {({ push, remove, form }) => (
                               <>
@@ -241,9 +247,8 @@ const FormSteps = () => {
                                   )}
                                   <div className="options-list">
                                     {(step.options || []).map((option, optIndex) => (
-                                      <div>
+                                      <div key={optIndex}>
                                         <div
-                                          key={optIndex}
                                           style={{
                                             display: 'grid',
                                             gridTemplateColumns: '1fr auto',
@@ -293,9 +298,10 @@ const FormSteps = () => {
 // Form Editor Component
 export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => {
   const idxFormsService = useIdxFormsService();
+  const { notify } = useToast();
 
   const [initialFormValues, setInitialFormValues] =
-    useState<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key'>>();
+    useState<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key' | 'id'>>();
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
@@ -312,12 +318,40 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
     idxFormsService
       .getById({ id: formId, registration_key: config.user.registrationKey })
       .then(data => {
-        const { created_at, modified_in, registration_key, ...restFormValues } = data;
+        const { created_at, modified_in, registration_key, id, ...restFormValues } = data;
         setInitialFormValues(restFormValues);
         setTempName(restFormValues.name);
       });
   }, [formId]);
 
+  const stepSchema = Yup.object({
+    order: Yup.number(),
+    is_default: Yup.boolean(),
+    question: Yup.string().test('skip-if-default', 'This field is required', function (value) {
+      const { is_default } = this.parent;
+      if (is_default) return true; // ignorar validación
+      return !!value; // validar que exista
+    }),
+    questionType: Yup.string().test('skip-if-default', 'This field is required', function (value) {
+      const { is_default } = this.parent;
+      if (is_default) return true;
+      return !!value;
+    }),
+    options: Yup.array()
+      .of(Yup.string().required('This field is required'))
+      .test('skip-if-default', 'There must be at least one option', function (value) {
+        const { is_default, questionType } = this.parent;
+
+        // ignorar validación si is_default es true
+        if (is_default) return true;
+
+        // si questionType es 'text' o 'address', options es opcional
+        if (questionType === 'text' || questionType === 'address') return true;
+
+        // de lo contrario, validar que sea un array con al menos un elemento
+        return Array.isArray(value) && value.length > 0;
+      }),
+  });
   if (!initialFormValues) return <></>;
 
   return (
@@ -327,19 +361,31 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
       validationSchema={Yup.object({
         name: Yup.string().required('This field is required'),
         form_type: Yup.string().required('This field is required'),
-        steps: Yup.array().of(
-          Yup.object({
-            question: Yup.string().required('This field is required'),
-            quetionType: Yup.string().required('This field is required'),
-            options: Yup.array()
-              .of(Yup.string().required('This field is required'))
-              .min(1, 'There must be at least one option'),
-          })
-        ),
+        steps: Yup.array().of(stepSchema),
         background_image: Yup.string().required('This field is required'),
       })}
-      onSubmit={values => {
-        console.log({ values });
+      onSubmit={(values, { setSubmitting }) => {
+        setSubmitting(true);
+        const orderedSteps = values.steps
+          .map((item, i) => ({ ...item, order: i }))
+          .sort((a, b) => a.order - b.order);
+        values.steps = orderedSteps;
+        idxFormsService
+          .update({
+            id: formId as string,
+            registration_key: config.user.registrationKey,
+            data: values,
+          })
+          .then(({ status }) => {
+            if (status === 'updated') {
+              notify('The form was updated successfully.', {
+                type: 'success',
+                position: 'top-right',
+              });
+              setSubmitting(false);
+              onCancel();
+            }
+          });
       }}
     >
       {({ handleSubmit, values, setFieldValue, errors, touched }) => (

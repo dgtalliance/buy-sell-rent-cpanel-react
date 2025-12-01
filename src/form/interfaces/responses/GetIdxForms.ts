@@ -12,7 +12,7 @@ export interface IdxForm {
   created_at: Date;
   modified_in: Date;
   slug: string;
-  form_type: string;
+  form_type: FormType;
   steps: Step[];
   registration_key: string;
   background_image: string;
@@ -20,10 +20,21 @@ export interface IdxForm {
 
 export interface Step {
   question: string;
-  quetionType: QuestionType;
+  questionType: QuestionType;
   options: string[];
+  order: number;
+  is_default: boolean;
 }
 
 export enum QuestionType {
-  SelectSimple = 'select_simple',
+  SelectSingle = 'select_single',
+  Contact = 'contact',
+  Text = 'text',
+  Address = 'address',
+}
+
+export enum FormType {
+  Buy = 'buy',
+  Sell = 'sell',
+  Rent = 'rent',
 }
