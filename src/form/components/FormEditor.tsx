@@ -4,6 +4,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   EditIcon,
+  Image,
   PlusIcon,
   SaveIcon,
   TrashIcon,
@@ -16,6 +17,76 @@ import { config } from '../../core/config';
 import { FormType, IdxForm, QuestionType } from '../interfaces/responses';
 import { FormErrorMessage } from './FormErrorMessage';
 import { useToast } from '../../core/hooks';
+
+interface FileItemProps {
+  name: string;
+  size?: string;
+  onDelete?: () => void;
+}
+
+const FileItem: React.FC<FileItemProps> = ({ name, size, onDelete }) => {
+  return (
+    <div style={styles.container}>
+      {/* Left section: icon + file info */}
+      <div style={styles.left}>
+        <div style={styles.fileIcon}>
+          <Image />
+        </div>
+        <div>
+          <div style={styles.fileName}>{name}</div>
+          {/* <div style={styles.fileSize}>{size}</div> */}
+        </div>
+      </div>
+
+      {/* Right section: delete button */}
+      {/* <button onClick={onDelete} style={styles.deleteButton}>
+        🗑️
+      </button> */}
+    </div>
+  );
+};
+
+const styles: Record<string, React.CSSProperties> = {
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#f5f7fa',
+    padding: '10px 14px',
+    borderRadius: '8px',
+    width: '100%',
+  },
+
+  left: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+
+  fileIcon: {
+    fontSize: '22px',
+  },
+
+  fileName: {
+    fontSize: '14px',
+    fontWeight: 600,
+    color: '#1f2933',
+  },
+
+  fileSize: {
+    fontSize: '12px',
+    color: '#6b7280',
+  },
+
+  deleteButton: {
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    fontSize: '18px',
+  },
+};
+
+export default FileItem;
 
 interface FormEditorProps {
   formId: string;
@@ -306,6 +377,8 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
 
+  const [currentFile, setCurrentFile] = useState<File>();
+
   const handleEditName = () => {
     setIsEditingName(true);
   };
@@ -505,12 +578,28 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
                 </small>
               </div>
               <div className="form-group full-width">
-                <label>Background Image URL (General)</label>
-                <Field
-                  type="text"
-                  name="background_image"
-                  placeholder="https://example.com/image.jpg"
+                <label>Background Image (General)</label>
+                <input
+                  type="file"
+                  accept="image/*"
                   className="form-input"
+                  onChange={async event => {
+                    const file = event.currentTarget.files?.[0];
+                    if (!file) return;
+                    setCurrentFile(file);
+
+                    const toBase64 = (file: File): Promise<string> => {
+                      return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = () => resolve(reader.result as string);
+                        reader.onerror = error => reject(error);
+                      });
+                    };
+
+                    const base64 = await toBase64(file);
+                    setFieldValue('background_image', base64);
+                  }}
                 />
                 {errors.background_image && touched.background_image ? (
                   <FormErrorMessage name="background_image" />
@@ -527,6 +616,7 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
                     each step.
                   </small>
                 )}
+                <FileItem name={currentFile?.name || values.background_image} />
               </div>
             </div>
           </div>
