@@ -15,7 +15,7 @@ export interface IdxForm {
   form_type: FormType;
   steps: Step[];
   registration_key: string;
-  background_image: string;
+  background_image: string | null;
 }
 
 export interface Step {
