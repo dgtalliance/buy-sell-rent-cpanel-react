@@ -5,6 +5,9 @@ import {
   ChevronUpIcon,
   EditIcon,
   Image,
+  MapIcon,
+  MapMinus,
+  MapPin,
   PlusIcon,
   SaveIcon,
   TrashIcon,
@@ -149,6 +152,11 @@ const FormSteps = () => {
                       <div className="step-header-left">
                         <span className="step-number">Step {index + 1}</span>
                         <span className="step-question-preview">{step.question || 'Untitled'}</span>
+                        {step.questionType === QuestionType.Address && (
+                          <span style={{ display: 'inline-flex' }}>
+                            <MapPin />
+                          </span>
+                        )}
                       </div>
                       <div className="step-header-right">
                         <button
