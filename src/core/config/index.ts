@@ -1,12 +1,15 @@
+interface globalThis {
+  registrationKey?: string;
+}
 const envVars = import.meta.env;
 
 const createConfig = () => {
   return {
     user: {
-      registrationKey: '3fd11664-30dd-450b-81b6-e8962aa377a7',
+      registrationKey: window.registrationKey || envVars.VITE_REGISTRATION_KEY,
     },
     api: {
-      idxboost: envVars.VITE_IDXBOOST_API_URL,
+      idxboost: window.idxboostApiUrl || envVars.VITE_IDXBOOST_API_URL,
     },
   };
 };

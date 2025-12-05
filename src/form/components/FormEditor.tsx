@@ -21,6 +21,8 @@ import { FormType, IdxForm, QuestionType } from '../interfaces/responses';
 import { FormErrorMessage } from './FormErrorMessage';
 import { useToast } from '../../core/hooks';
 import { BackgroundImageUploader } from '.';
+import { IDXButton } from '../../core/components';
+import { IDXTitle } from '../../core/components/IDXTitle';
 
 interface FormEditorProps {
   formId: string;
@@ -58,18 +60,17 @@ const FormSteps = () => {
 
     setValues({ ...values, steps: newSteps });
     setDraggedStep(null);
-    setExpandedStep(dropIndex);
   };
   return (
     <FieldArray name="steps">
       {({ remove, insert }) => (
         <div className="editor-section">
           <div className="section-header">
-            <h3 className="section-title">
+            <IDXTitle htmlTag="h3">
               Form Steps ({values.steps.filter(s => !s.is_default).length})
-            </h3>
-            <button
-              className="btn-add-step"
+            </IDXTitle>
+            <IDXButton
+              type="primary"
               onClick={() =>
                 insert(values.steps.length - 1, {
                   question: 'Untitled',
@@ -78,7 +79,7 @@ const FormSteps = () => {
               }
             >
               <PlusIcon /> Add Step
-            </button>
+            </IDXButton>
           </div>
 
           {values.steps.filter(s => !s.is_default).length === 0 ? (
@@ -431,73 +432,37 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
                       }}
                       autoFocus
                     />
-                    <button
+                    <IDXButton
                       onClick={() => {
                         setFieldValue('name', tempName);
                         setIsEditingName(false);
                       }}
-                      style={{
-                        background: 'transparent',
-                        border: '1px solid #34d399',
-                        color: '#34d399',
-                        padding: '8px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      title="Save"
+                      type="primary"
                     >
                       <CheckIcon />
-                    </button>
-                    <button
-                      onClick={handleCancelEditName}
-                      style={{
-                        background: 'transparent',
-                        border: '1px solid #e5e5e7',
-                        color: '#86868b',
-                        padding: '8px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      title="Cancel"
-                    >
+                    </IDXButton>
+                    <IDXButton onClick={handleCancelEditName}>
                       <XIcon />
-                    </button>
+                    </IDXButton>
                   </>
                 ) : (
                   <>
                     <h3 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>
                       {values.name || 'New Form'}
                     </h3>
-                    <button
-                      onClick={handleEditName}
-                      style={{
-                        background: 'transparent',
-                        border: '1px solid #d2d2d7',
-                        color: '#1d1d1f',
-                        padding: '8px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      title="Edit form name"
-                    >
+                    <IDXButton onClick={handleEditName}>
                       <EditIcon />
-                    </button>
+                    </IDXButton>
                   </>
                 )}
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn-secondary" onClick={onCancel}>
+                <IDXButton onClick={onCancel}>
                   <XIcon /> Cancel
-                </button>
-                <button className="btn-primary" onClick={() => handleSubmit()}>
+                </IDXButton>
+                <IDXButton type="primary" onClick={() => handleSubmit()}>
                   <SaveIcon /> Save
-                </button>
+                </IDXButton>
               </div>
             </div>
             <div className="form-grid">
@@ -530,8 +495,7 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
                       display: 'block',
                     }}
                   >
-                    This image will be applied to all steps. You can override it individually in
-                    each step.
+                    This image applies to all steps. You can override it. Max size: 2 MB.
                   </small>
                 )}
               </div>

@@ -59,18 +59,16 @@ export const BackgroundImageUploader: React.FC = () => {
   );
 };
 
-/* ===================== STYLES ===================== */
-
 const container: React.CSSProperties = {
   width: '100%',
-  maxWidth: '560px',
+  maxWidth: '280px',
   textAlign: 'center',
   fontFamily: 'Arial, sans-serif',
 };
 
 const uploadBox: React.CSSProperties = {
   width: '100%',
-  height: '300px',
+  height: '150px',
   border: '2px dashed #9e9e9e',
   display: 'flex',
   alignItems: 'center',
@@ -88,7 +86,7 @@ const addText: React.CSSProperties = {
 
 const imageBox: React.CSSProperties = {
   width: '100%',
-  height: '300px',
+  height: '150px',
   position: 'relative',
   border: '1px solid #ddd',
   overflow: 'hidden',

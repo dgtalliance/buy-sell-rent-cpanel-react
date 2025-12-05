@@ -8,8 +8,8 @@ Base URL de los endpoints:
 
 Todos los endpoints requieren:
 
-* `registration_key` como campo obligatorio para escritura (crear/editar)
-* En las consultas de listado, el `registration_key` debe venir como parámetro para filtrar los resultados
+- `registration_key` como campo obligatorio para escritura (crear/editar)
+- En las consultas de listado, el `registration_key` debe venir como parámetro para filtrar los resultados
 
 ---
 
@@ -37,15 +37,15 @@ Campos:
 
 ### 🔹 En **create**:
 
-* Si `background_image` o los `steps[].background_image` vienen **base64**, se suben a S3 y se guardan como URL.
-* Si vienen vacíos, se guardan como vacío.
-* Si vienen como URL, se mantiene la URL.
+- Si `background_image` o los `steps[].background_image` vienen **base64**, se suben a S3 y se guardan como URL.
+- Si vienen vacíos, se guardan como vacío.
+- Si vienen como URL, se mantiene la URL.
 
 ### 🔹 En **edit**:
 
-* Si vienen como URL → se mantiene.
-* Si vienen como base64 → se suben a S3 y se reemplaza por URL.
-* Siempre se guarda una URL en la base de datos.
+- Si vienen como URL → se mantiene.
+- Si vienen como base64 → se suben a S3 y se reemplaza por URL.
+- Siempre se guarda una URL en la base de datos.
 
 ---
 
@@ -145,25 +145,25 @@ GET /api/idxforms/slug/buyers-guide
 
 ```json
 {
-    "registration_key": "123",
-    "name": "name123",
-    "formType": "Buy",
-    "slug": "name123",
-    "background_image": "base64image",
-    "steps": [
-        {
-            "question": "What Are You Looking To Buy?",
-            "questionType": "select_multiple",
-            "options": ["CONDO", "SINGLE FAMILY HOME"],
-            "background_image": ""
-        },
-        {
-            "question": "What's Your Price Range?",
-            "questionType": "select_simple",
-            "options": ["BELOW $1M", "$1M TO $3M"],
-            "background_image": "base64image"
-        }
-    ]
+  "registration_key": "123",
+  "name": "name123",
+  "formType": "Buy",
+  "slug": "name123",
+  "background_image": "base64image",
+  "steps": [
+    {
+      "question": "What Are You Looking To Buy?",
+      "questionType": "select_multiple",
+      "options": ["CONDO", "SINGLE FAMILY HOME"],
+      "background_image": ""
+    },
+    {
+      "question": "What's Your Price Range?",
+      "questionType": "select_simple",
+      "options": ["BELOW $1M", "$1M TO $3M"],
+      "background_image": "base64image"
+    }
+  ]
 }
 ```
 
@@ -184,22 +184,22 @@ GET /api/idxforms/slug/buyers-guide
 
 ### Reglas sobre imágenes:
 
-* Si el valor es base64 → subir a S3 → reemplazar por URL
-* Si es URL → mantener
-* Si está vacío → mantener vacío
+- Si el valor es base64 → subir a S3 → reemplazar por URL
+- Si es URL → mantener
+- Si está vacío → mantener vacío
 
 ### Ejemplo body:
 
 ```json
 {
-    "name": "New Name",
-    "background_image": "base64...",
-    "steps": [
-      {
-        "question": "...",
-        "background_image": "https://s3.amazon/...existing.jpg"
-      }
-    ]
+  "name": "New Name",
+  "background_image": "base64...",
+  "steps": [
+    {
+      "question": "...",
+      "background_image": "https://s3.amazon/...existing.jpg"
+    }
+  ]
 }
 ```
 
