@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { EditIcon, TrashIcon } from 'lucide-react';
+import { Edit } from '@mui/icons-material';
 import { useIdxFormsService } from '../hooks';
 import { config } from '../../core/config';
 import { Modal } from 'antd';
@@ -80,7 +80,7 @@ export const FormsList = () => {
                         onOpen();
                       }}
                     >
-                      <EditIcon />
+                      <Edit />
                     </IDXButton>
                   </div>
                 </td>

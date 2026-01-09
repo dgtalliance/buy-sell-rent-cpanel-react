@@ -12,6 +12,13 @@ export default defineConfig(({ command }) => {
         }),
         react(),
       ],
+      server: {
+        host: true,
+        port: 5173,
+        watch: {
+          usePolling: true,
+        },
+      },
     };
   }
   return {

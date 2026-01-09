@@ -1,18 +1,18 @@
 import { Field, FieldArray, Formik, getIn, useFormikContext } from 'formik';
 import {
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  EditIcon,
+  Check,
+  ExpandMore,
+  ExpandLess,
+  Edit,
   Image,
-  MapIcon,
-  MapMinus,
-  MapPin,
-  PlusIcon,
-  SaveIcon,
-  TrashIcon,
-  XIcon,
-} from 'lucide-react';
+  Map,
+  MapOutlined,
+  LocationOn,
+  Add,
+  Save,
+  Delete,
+  Close,
+} from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { useIdxFormsService } from '../hooks';
@@ -78,7 +78,7 @@ const FormSteps = () => {
                 })
               }
             >
-              <PlusIcon /> Add Step
+              <Add /> Add Step
             </IDXButton>
           </div>
 
@@ -155,7 +155,7 @@ const FormSteps = () => {
                         <span className="step-question-preview">{step.question || 'Untitled'}</span>
                         {step.questionType === QuestionType.Address && (
                           <span style={{ display: 'inline-flex' }}>
-                            <MapPin />
+                            <LocationOn />
                           </span>
                         )}
                       </div>
@@ -167,10 +167,10 @@ const FormSteps = () => {
                             remove(index);
                           }}
                         >
-                          <TrashIcon />
+                          <Delete />
                         </button>
                         <button className="icon-btn">
-                          {expandedStep === index ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                          {expandedStep === index ? <ExpandLess /> : <ExpandMore />}
                         </button>
                       </div>
                     </div>
@@ -250,7 +250,7 @@ const FormSteps = () => {
                                         form.setFieldTouched(`steps[${index}].options`, true);
                                       }}
                                     >
-                                      <PlusIcon /> Add Option
+                                      <Add /> Add Option
                                     </button>
                                   </div>
                                   {typeof getIn(errors, `steps[${index}].options`) === 'string' && (
@@ -279,7 +279,7 @@ const FormSteps = () => {
                                               form.setFieldTouched(`steps[${index}].options`, true);
                                             }}
                                           >
-                                            <TrashIcon />
+                                            <Delete />
                                           </button>
                                         </div>
                                         <FormErrorMessage
@@ -439,10 +439,10 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
                       }}
                       type="primary"
                     >
-                      <CheckIcon />
+                      <Check />
                     </IDXButton>
                     <IDXButton onClick={handleCancelEditName}>
-                      <XIcon />
+                      <Close />
                     </IDXButton>
                   </>
                 ) : (
@@ -451,17 +451,17 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
                       {values.name || 'New Form'}
                     </h3>
                     <IDXButton onClick={handleEditName}>
-                      <EditIcon />
+                      <Edit />
                     </IDXButton>
                   </>
                 )}
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <IDXButton onClick={onCancel}>
-                  <XIcon /> Cancel
+                  <Close /> Cancel
                 </IDXButton>
                 <IDXButton type="primary" onClick={() => handleSubmit()}>
-                  <SaveIcon /> Save
+                  <Save /> Save
                 </IDXButton>
               </div>
             </div>
