@@ -15,4 +15,10 @@ export const theme = {
     purple: '#9900FF',
     darkGray: '#434343',
   },
+  button: {
+    icon: {
+      color: 'rgb(191, 191, 191)',
+      colorDisabled: 'rgba(191, 191, 191, 0.4)',
+    },
+  },
 };

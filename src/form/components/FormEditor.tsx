@@ -25,9 +25,47 @@ import { IDXButton } from '../../core/components';
 import { IDXTitle } from '../../core/components/IDXTitle';
 
 interface FormEditorProps {
-  formId: string;
+  formId?: string;
   onCancel?: () => void;
+  onSuccess?: () => void;
 }
+
+const generateSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
+const DEFAULT_FORM_VALUES: Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key' | 'id'> = {
+  name: 'New Form',
+  slug: '',
+  form_type: FormType.Custom,
+  background_image: null,
+  steps: [
+    {
+      question: 'Contact Information',
+      questionType: QuestionType.Contact,
+      options: [],
+      order: 0,
+      is_default: true,
+    },
+  ],
+};
+
+const SlugSync = ({ isEditMode }: { isEditMode: boolean }) => {
+  const { values, setFieldValue } = useFormikContext<{ name: string; slug: string }>();
+
+  useEffect(() => {
+    if (!isEditMode) {
+      setFieldValue('slug', generateSlug(values.name));
+    }
+  }, [values.name, isEditMode, setFieldValue]);
+
+  return null;
+};
 
 const FormSteps = () => {
   const { values, setValues, errors } =
@@ -70,7 +108,7 @@ const FormSteps = () => {
               Form Steps ({values.steps.filter(s => !s.is_default).length})
             </IDXTitle>
             <IDXButton
-              type="primary"
+              type='default'
               onClick={() =>
                 insert(values.steps.length - 1, {
                   question: 'Untitled',
@@ -78,7 +116,7 @@ const FormSteps = () => {
                 })
               }
             >
-              <Add /> Add Step
+              ADD STEP
             </IDXButton>
           </div>
 
@@ -105,7 +143,7 @@ const FormSteps = () => {
                         style={{ background: '#f0fdf4', cursor: 'default' }}
                       >
                         <div className="step-header-left">
-                          <span className="step-number" style={{ background: '#34d399' }}>
+                          <span className="step-number" style={{ background: '#676767', color: 'white' }}>
                             Final
                           </span>
                           <span className="step-question-preview">{step.question}</span>
@@ -243,15 +281,15 @@ const FormSteps = () => {
                                 <div className="options-section">
                                   <div className="options-header">
                                     <h4>Options</h4>
-                                    <button
-                                      className="btn-add-option"
+                                    <IDXButton
+                                      type="default"
                                       onClick={() => {
                                         push('');
                                         form.setFieldTouched(`steps[${index}].options`, true);
                                       }}
                                     >
-                                      <Add /> Add Option
-                                    </button>
+                                      ADD OPTION
+                                    </IDXButton>
                                   </div>
                                   {typeof getIn(errors, `steps[${index}].options`) === 'string' && (
                                     <FormErrorMessage name={`steps[${index}].options`} />
@@ -273,7 +311,7 @@ const FormSteps = () => {
                                             className="option-input"
                                           />
                                           <button
-                                            className="btn-delete-option"
+                                            className="btn-delete-option icon-btn"
                                             onClick={() => {
                                               remove(optIndex);
                                               form.setFieldTouched(`steps[${index}].options`, true);
@@ -306,13 +344,14 @@ const FormSteps = () => {
   );
 };
 
-// Form Editor Component
-export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => {
+export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }: FormEditorProps) => {
   const idxFormsService = useIdxFormsService();
   const { notify } = useToast();
 
+  const isEditMode = !!formId;
+
   const [initialFormValues, setInitialFormValues] =
-    useState<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key' | 'id'>>();
+    useState<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key' | 'id'>>(DEFAULT_FORM_VALUES);
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
@@ -328,6 +367,14 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
   };
 
   useEffect(() => {
+    if (!formId) {
+      // Create mode - use default values
+      setInitialFormValues(DEFAULT_FORM_VALUES);
+      setTempName(DEFAULT_FORM_VALUES.name);
+      return;
+    }
+
+    // Edit mode - fetch existing form
     idxFormsService
       .getById({ id: formId, registration_key: config.user.registrationKey })
       .then(data => {
@@ -383,25 +430,62 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
           .map((item, i) => ({ ...item, order: i }))
           .sort((a, b) => a.order - b.order);
         values.steps = orderedSteps;
-        idxFormsService
-          .update({
-            id: formId as string,
-            registration_key: config.user.registrationKey,
-            data: values,
-          })
-          .then(({ status }) => {
-            if (status === 'updated') {
-              notify('The form was updated successfully.', {
+
+        const dataToSubmit = {
+          ...values,
+          registration_key: config.user.registrationKey,
+        };
+
+        if (isEditMode) {
+          // Update existing form
+          idxFormsService
+            .update({
+              id: formId as string,
+              registration_key: config.user.registrationKey,
+              data: values,
+            })
+            .then(({ status }) => {
+              if (status === 'updated') {
+                notify('The form was updated successfully.', {
+                  type: 'success',
+                  position: 'top-right',
+                });
+                setSubmitting(false);
+                onSuccess();
+                onCancel();
+              }
+            })
+            .catch(error => {
+              notify('Error updating form. Please try again.', {
+                type: 'error',
+                position: 'top-right',
+              });
+              setSubmitting(false);
+            });
+        } else {
+          // Create new form
+          idxFormsService
+            .create(dataToSubmit)
+            .then(() => {
+              notify('The form was created successfully.', {
                 type: 'success',
                 position: 'top-right',
               });
               setSubmitting(false);
+              onSuccess();
               onCancel();
-            }
-          });
+            })
+            .catch(error => {
+              notify('Error creating form. Please try again.', {
+                type: 'error',
+                position: 'top-right',
+              });
+              setSubmitting(false);
+            });
+        }
       }}
     >
-      {({ handleSubmit, values, setFieldValue, errors, touched }) => (
+      {({ handleSubmit, values, errors, touched }) => (
         <div className="form-editor-container">
           <div className="editor-section">
             <div
@@ -414,58 +498,32 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
                 borderBottom: '2px solid #e5e5e7',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {isEditingName ? (
-                  <>
-                    <input
-                      type="text"
-                      value={tempName}
-                      onChange={e => setTempName(e.target.value)}
-                      style={{
-                        fontSize: '24px',
-                        fontWeight: '600',
-                        border: '2px solid #0071e3',
-                        borderRadius: '6px',
-                        padding: '8px 12px',
-                        outline: 'none',
-                        minWidth: '300px',
-                      }}
-                      autoFocus
-                    />
-                    <IDXButton
-                      onClick={() => {
-                        setFieldValue('name', tempName);
-                        setIsEditingName(false);
-                      }}
-                      type="primary"
-                    >
-                      <Check />
-                    </IDXButton>
-                    <IDXButton onClick={handleCancelEditName}>
-                      <Close />
-                    </IDXButton>
-                  </>
-                ) : (
-                  <>
-                    <h3 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>
-                      {values.name || 'New Form'}
-                    </h3>
-                    <IDXButton onClick={handleEditName}>
-                      <Edit />
-                    </IDXButton>
-                  </>
-                )}
-              </div>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <IDXButton onClick={onCancel}>
-                  <Close /> Cancel
-                </IDXButton>
+              <h3 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>
+                {values.name || 'New Form'}
+              </h3>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                 <IDXButton type="primary" onClick={() => handleSubmit()}>
-                  <Save /> Save
+                  SAVE
+                </IDXButton>
+                <IDXButton type="icon" onClick={onCancel}>
+                  <Close />
                 </IDXButton>
               </div>
             </div>
             <div className="form-grid">
+              <SlugSync isEditMode={isEditMode} />
+              <Field type="hidden" name="form_type" />
+
+              <div className="form-group full-width">
+                <label>Form Name *</label>
+                <Field
+                  type="text"
+                  name="name"
+                  placeholder="Enter form name"
+                  className="form-input"
+                />
+                <FormErrorMessage name="name" />
+              </div>
               <div className="form-group">
                 <label>Slug (URL)</label>
                 <input
@@ -502,6 +560,23 @@ export const FormEditor = ({ formId, onCancel = () => {} }: FormEditorProps) => 
             </div>
           </div>
           <FormSteps />
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px',
+              marginTop: '24px',
+              paddingTop: '20px',
+              borderTop: '2px solid #e5e5e7',
+            }}
+          >
+            <IDXButton onClick={onCancel}>
+              Cancel
+            </IDXButton>
+            <IDXButton type="primary" onClick={() => handleSubmit()}>
+              SAVE
+            </IDXButton>
+          </div>
         </div>
       )}
     </Formik>

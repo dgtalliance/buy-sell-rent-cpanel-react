@@ -78,8 +78,9 @@ export class IdxFormsService {
     return res.json();
   }
 
-  async delete(id: number) {
-    const res = await fetch(`${this.baseUrl}/${id}`, {
+  async delete(id: number, registration_key: string) {
+    const query = this.buildQuery({ registration_key });
+    const res = await fetch(`${this.baseUrl}/${id}?${query}`, {
       method: 'DELETE',
     });
 

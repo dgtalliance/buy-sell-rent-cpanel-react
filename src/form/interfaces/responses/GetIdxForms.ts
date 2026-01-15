@@ -37,4 +37,5 @@ export enum FormType {
   Buy = 'buy',
   Sell = 'sell',
   Rent = 'rent',
+  Custom = 'custom',
 }
