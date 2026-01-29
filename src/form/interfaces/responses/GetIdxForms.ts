@@ -16,12 +16,19 @@ export interface IdxForm {
   steps: Step[];
   registration_key: string;
   background_image: string | null;
+  redirect_on_submit: boolean;
+  redirect_url: string | null;
+}
+
+export interface StepOption {
+  label: string;
+  value: string;
 }
 
 export interface Step {
   question: string;
   questionType: QuestionType;
-  options: string[];
+  options: StepOption[];
   order: number;
   is_default: boolean;
 }
@@ -31,6 +38,10 @@ export enum QuestionType {
   Contact = 'contact',
   Text = 'text',
   Address = 'address',
+  PropertyType = 'property_type',
+  Beds = 'beds',
+  Baths = 'baths',
+  Price = 'price',
 }
 
 export enum FormType {

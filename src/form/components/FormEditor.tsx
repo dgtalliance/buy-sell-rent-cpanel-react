@@ -1,348 +1,24 @@
-import { Field, FieldArray, Formik, getIn, useFormikContext } from 'formik';
-import {
-  Check,
-  ExpandMore,
-  ExpandLess,
-  Edit,
-  Image,
-  Map,
-  MapOutlined,
-  LocationOn,
-  Add,
-  Save,
-  Delete,
-  Close,
-} from '@mui/icons-material';
+import { Field, Formik } from 'formik';
+import { Close, Visibility } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { useIdxFormsService } from '../hooks';
 import { config } from '../../core/config';
-import { FormType, IdxForm, QuestionType } from '../interfaces/responses';
+import { IdxForm } from '../interfaces/responses';
 import { FormErrorMessage } from './FormErrorMessage';
 import { useToast } from '../../core/hooks';
 import { BackgroundImageUploader } from '.';
 import { IDXButton } from '../../core/components';
 import { IDXTitle } from '../../core/components/IDXTitle';
+import { DEFAULT_FORM_VALUES } from '../constants';
+import { SlugSync } from './SlugSync';
+import { FormSteps } from './FormSteps';
 
 interface FormEditorProps {
   formId?: string;
   onCancel?: () => void;
   onSuccess?: () => void;
 }
-
-const generateSlug = (name: string): string => {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-};
-
-const DEFAULT_FORM_VALUES: Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key' | 'id'> = {
-  name: 'New Form',
-  slug: '',
-  form_type: FormType.Custom,
-  background_image: null,
-  steps: [
-    {
-      question: 'Contact Information',
-      questionType: QuestionType.Contact,
-      options: [],
-      order: 0,
-      is_default: true,
-    },
-  ],
-};
-
-const SlugSync = ({ isEditMode }: { isEditMode: boolean }) => {
-  const { values, setFieldValue } = useFormikContext<{ name: string; slug: string }>();
-
-  useEffect(() => {
-    if (!isEditMode) {
-      setFieldValue('slug', generateSlug(values.name));
-    }
-  }, [values.name, isEditMode, setFieldValue]);
-
-  return null;
-};
-
-const FormSteps = () => {
-  const { values, setValues, errors } =
-    useFormikContext<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key'>>();
-  console.log({ errors, values });
-  const [expandedStep, setExpandedStep] = useState<number | null>(null);
-  const [draggedStep, setDraggedStep] = useState<number | null>(null);
-
-  const handleDragStart = (index: number) => {
-    setDraggedStep(index);
-  };
-
-  const handleDragOver = (e: any, index: number) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e: any, dropIndex: number) => {
-    e.preventDefault();
-
-    if (draggedStep === null || draggedStep === dropIndex) {
-      setDraggedStep(null);
-      return;
-    }
-
-    const newSteps = [...values.steps];
-    const draggedItem = newSteps[draggedStep];
-
-    newSteps.splice(draggedStep, 1);
-    newSteps.splice(dropIndex, 0, draggedItem);
-
-    setValues({ ...values, steps: newSteps });
-    setDraggedStep(null);
-  };
-  return (
-    <FieldArray name="steps">
-      {({ remove, insert }) => (
-        <div className="editor-section">
-          <div className="section-header">
-            <IDXTitle htmlTag="h3">
-              Form Steps ({values.steps.filter(s => !s.is_default).length})
-            </IDXTitle>
-            <IDXButton
-              type='default'
-              onClick={() =>
-                insert(values.steps.length - 1, {
-                  question: 'Untitled',
-                  questionType: QuestionType.Text,
-                })
-              }
-            >
-              ADD STEP
-            </IDXButton>
-          </div>
-
-          {values.steps.filter(s => !s.is_default).length === 0 ? (
-            <div className="empty-steps">
-              <p>No steps configured yet.</p>
-              <p style={{ marginTop: '8px', fontSize: '13px' }}>
-                The "Contact Information" step is added automatically at the end
-              </p>
-            </div>
-          ) : (
-            <div className="steps-list">
-              {values.steps.map((step, index) => {
-                // Contact Information Step (default)
-                if (step.is_default) {
-                  return (
-                    <div
-                      key={index}
-                      className="step-card"
-                      style={{ borderColor: '#34d399', background: '#f0fdf4' }}
-                    >
-                      <div
-                        className="step-header"
-                        style={{ background: '#f0fdf4', cursor: 'default' }}
-                      >
-                        <div className="step-header-left">
-                          <span className="step-number" style={{ background: '#676767', color: 'white' }}>
-                            Final
-                          </span>
-                          <span className="step-question-preview">{step.question}</span>
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              padding: '3px 10px',
-                              background: '#34d399',
-                              color: 'white',
-                              borderRadius: '10px',
-                              fontSize: '11px',
-                              fontWeight: '600',
-                            }}
-                          >
-                            Pre-built
-                          </span>
-                        </div>
-                        <div className="step-header-right">
-                          <span style={{ fontSize: '12px', color: '#86868b' }}>
-                            Email, Name, Phone, Comments
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                // Regular step
-                return (
-                  <div
-                    key={index}
-                    className={`step-card ${expandedStep === index ? 'expanded' : ''} ${
-                      draggedStep === index ? 'dragging' : ''
-                    }`}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={e => handleDragOver(e, index)}
-                    onDrop={e => handleDrop(e, index)}
-                    style={{ cursor: 'move' }}
-                  >
-                    <div
-                      className="step-header"
-                      onClick={() => setExpandedStep(expandedStep === index ? null : index)}
-                    >
-                      <div className="step-header-left">
-                        <span className="step-number">Step {index + 1}</span>
-                        <span className="step-question-preview">{step.question || 'Untitled'}</span>
-                        {step.questionType === QuestionType.Address && (
-                          <span style={{ display: 'inline-flex' }}>
-                            <LocationOn />
-                          </span>
-                        )}
-                      </div>
-                      <div className="step-header-right">
-                        <button
-                          className="icon-btn danger"
-                          onClick={e => {
-                            e.stopPropagation();
-                            remove(index);
-                          }}
-                        >
-                          <Delete />
-                        </button>
-                        <button className="icon-btn">
-                          {expandedStep === index ? <ExpandLess /> : <ExpandMore />}
-                        </button>
-                      </div>
-                    </div>
-
-                    {expandedStep === index && (
-                      <div className="step-body">
-                        <div className="form-grid">
-                          <div className="form-group full-width">
-                            <label>Question / Text *</label>
-                            <Field
-                              type="text"
-                              name={`steps[${index}].question`}
-                              placeholder="e.g: What Are You Looking To Buy?"
-                              className="form-input"
-                            />
-                            <FormErrorMessage name={`steps[${index}].question`} />
-                          </div>
-                          <div className="form-group">
-                            <label>Field Type</label>
-                            <Field
-                              as="select"
-                              name={`steps[${index}].questionType`}
-                              className="form-select"
-                            >
-                              <option value={QuestionType.SelectSingle}>Single Select</option>
-                              <option value={QuestionType.Text}>Text</option>
-                              {values.form_type === FormType.Sell &&
-                                (values.steps.findIndex(
-                                  item => item.questionType === QuestionType.Address
-                                ) === index ||
-                                  values.steps.findIndex(
-                                    item => item.questionType === QuestionType.Address
-                                  ) === -1) && (
-                                  <option value={QuestionType.Address}>Address</option>
-                                )}
-                            </Field>
-                            <FormErrorMessage name={`steps[${index}].questionType`} />
-                            {step.questionType === QuestionType.Address && (
-                              <div
-                                style={{
-                                  marginTop: '8px',
-                                  padding: '8px 12px',
-                                  background: '#fff7ed',
-                                  border: '1px solid #fed7aa',
-                                  borderRadius: '6px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                }}
-                              >
-                                <span style={{ fontSize: '16px' }}>📍</span>
-                                <span
-                                  style={{
-                                    fontSize: '13px',
-                                    color: '#9a3412',
-                                    fontWeight: '500',
-                                  }}
-                                >
-                                  Address field - Only one per form
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {step.questionType === QuestionType.SelectSingle && (
-                          <FieldArray name={`steps[${index}].options`}>
-                            {({ push, remove, form }) => (
-                              <>
-                                <div className="options-section">
-                                  <div className="options-header">
-                                    <h4>Options</h4>
-                                    <IDXButton
-                                      type="default"
-                                      onClick={() => {
-                                        push('');
-                                        form.setFieldTouched(`steps[${index}].options`, true);
-                                      }}
-                                    >
-                                      ADD OPTION
-                                    </IDXButton>
-                                  </div>
-                                  {typeof getIn(errors, `steps[${index}].options`) === 'string' && (
-                                    <FormErrorMessage name={`steps[${index}].options`} />
-                                  )}
-                                  <div className="options-list">
-                                    {(step.options || []).map((option, optIndex) => (
-                                      <div key={optIndex}>
-                                        <div
-                                          style={{
-                                            display: 'grid',
-                                            gridTemplateColumns: '1fr auto',
-                                            gap: '12px',
-                                          }}
-                                        >
-                                          <Field
-                                            type="text"
-                                            name={`steps[${index}].options[${optIndex}]`}
-                                            placeholder="Option text (e.g: CONDO)"
-                                            className="option-input"
-                                          />
-                                          <button
-                                            className="btn-delete-option icon-btn"
-                                            onClick={() => {
-                                              remove(optIndex);
-                                              form.setFieldTouched(`steps[${index}].options`, true);
-                                            }}
-                                          >
-                                            <Delete />
-                                          </button>
-                                        </div>
-                                        <FormErrorMessage
-                                          name={`steps[${index}].options[${optIndex}]`}
-                                        />
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </>
-                            )}
-                          </FieldArray>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-    </FieldArray>
-  );
-};
 
 export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }: FormEditorProps) => {
   const idxFormsService = useIdxFormsService();
@@ -355,6 +31,7 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
+  const [activeTab, setActiveTab] = useState<'form' | 'settings'>('form');
 
   const [currentFile, setCurrentFile] = useState<File>();
 
@@ -398,15 +75,21 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
       return !!value;
     }),
     options: Yup.array()
-      .of(Yup.string().required('This field is required'))
+      .of(
+        Yup.object({
+          label: Yup.string().required('Label is required'),
+          value: Yup.string().required('Value is required'),
+        })
+      )
       .test('skip-if-default', 'There must be at least one option', function (value) {
         const { is_default, questionType } = this.parent;
 
         // ignorar validación si is_default es true
         if (is_default) return true;
 
-        // si questionType es 'text' o 'address', options es opcional
-        if (questionType === 'text' || questionType === 'address') return true;
+        // tipos que no requieren opciones
+        const typesWithoutOptions = ['text', 'address', 'property_type'];
+        if (typesWithoutOptions.includes(questionType)) return true;
 
         // de lo contrario, validar que sea un array con al menos un elemento
         return Array.isArray(value) && value.length > 0;
@@ -423,6 +106,13 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
         form_type: Yup.string().required('This field is required'),
         steps: Yup.array().of(stepSchema),
         background_image: Yup.string().nullable(),
+        redirect_on_submit: Yup.boolean(),
+        redirect_url: Yup.string()
+          .nullable()
+          .when('redirect_on_submit', {
+            is: true,
+            then: schema => schema.url('Please enter a valid URL').required('Redirect URL is required'),
+          }),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setSubmitting(true);
@@ -485,91 +175,144 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
         }
       }}
     >
-      {({ handleSubmit, values, errors, touched }) => (
+      {({ handleSubmit, values, errors, touched, setFieldValue }) => (
         <div className="form-editor-container">
-          <div className="editor-section">
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '24px',
-                paddingBottom: '20px',
-                borderBottom: '2px solid #e5e5e7',
-              }}
-            >
-              <h3 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>
-                {values.name || 'New Form'}
-              </h3>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <IDXButton type="primary" onClick={() => handleSubmit()}>
-                  SAVE
-                </IDXButton>
-                <IDXButton type="icon" onClick={onCancel}>
-                  <Close />
-                </IDXButton>
-              </div>
-            </div>
-            <div className="form-grid">
-              <SlugSync isEditMode={isEditMode} />
-              <Field type="hidden" name="form_type" />
-
-              <div className="form-group full-width">
-                <label>Form Name *</label>
-                <Field
-                  type="text"
-                  name="name"
-                  placeholder="Enter form name"
-                  className="form-input"
-                />
-                <FormErrorMessage name="name" />
-              </div>
-              <div className="form-group">
-                <label>Slug (URL)</label>
-                <input
-                  type="text"
-                  value={values.slug}
-                  className="form-input"
-                  disabled
-                  style={{ backgroundColor: '#f5f5f7', cursor: 'not-allowed', color: '#86868b' }}
-                />
-                <small
-                  style={{ color: '#86868b', fontSize: '12px', marginTop: '4px', display: 'block' }}
-                >
-                  The slug is automatically generated from the name
-                </small>
-              </div>
-              <div className="form-group full-width">
-                <label>Background Image (General)</label>
-                <BackgroundImageUploader />
-                {errors.background_image && touched.background_image ? (
-                  <FormErrorMessage name="background_image" />
-                ) : (
-                  <small
-                    style={{
-                      color: '#86868b',
-                      fontSize: '12px',
-                      marginTop: '4px',
-                      display: 'block',
-                    }}
-                  >
-                    This image applies to all steps. You can override it. Max size: 2 MB.
-                  </small>
-                )}
-              </div>
-            </div>
-          </div>
-          <FormSteps />
           <div
             style={{
               display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '12px',
-              marginTop: '24px',
-              paddingTop: '20px',
-              borderTop: '2px solid #e5e5e7',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px',
             }}
           >
+            <h3 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>
+              {values.name || 'New Form'}
+            </h3>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <IDXButton type="default" onClick={() => {}}>
+                <Visibility style={{ marginRight: '8px' }} />
+                PREVIEW
+              </IDXButton>
+              <IDXButton type="primary" onClick={() => handleSubmit()}>
+                SAVE
+              </IDXButton>
+              <IDXButton type="icon" onClick={onCancel}>
+                <Close />
+              </IDXButton>
+            </div>
+          </div>
+
+          <div className="editor-tabs">
+            <button
+              type="button"
+              className={`editor-tab ${activeTab === 'form' ? 'active' : ''}`}
+              onClick={() => setActiveTab('form')}
+            >
+              Form Steps
+            </button>
+            <button
+              type="button"
+              className={`editor-tab ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('settings')}
+            >
+              Settings
+            </button>
+          </div>
+
+          {/* Tab: Form Steps */}
+          {activeTab === 'form' && (
+            <>
+              <SlugSync isEditMode={isEditMode} />
+              <Field type="hidden" name="form_type" />
+              <FormSteps />
+            </>
+          )}
+
+          {/* Tab: Settings */}
+          {activeTab === 'settings' && (
+            <>
+              <div className="editor-section">
+                <IDXTitle htmlTag="h3">General Settings</IDXTitle>
+                <div className="form-grid" style={{ marginTop: '16px' }}>
+                  <div className="form-group full-width">
+                    <label>Form Name *</label>
+                    <Field
+                      type="text"
+                      name="name"
+                      placeholder="Enter form name"
+                      className="form-input"
+                    />
+                    <FormErrorMessage name="name" />
+                  </div>
+                  <div className="form-group">
+                    <label>Slug (URL)</label>
+                    <input
+                      type="text"
+                      value={values.slug}
+                      className="form-input"
+                      disabled
+                      style={{ backgroundColor: '#f5f5f7', cursor: 'not-allowed', color: '#86868b' }}
+                    />
+                    <small
+                      style={{ color: '#86868b', fontSize: '12px', marginTop: '4px', display: 'block' }}
+                    >
+                      The slug is automatically generated from the name
+                    </small>
+                  </div>
+                  <div className="form-group full-width">
+                    <label>Background Image (General)</label>
+                    <BackgroundImageUploader />
+                    {errors.background_image && touched.background_image ? (
+                      <FormErrorMessage name="background_image" />
+                    ) : (
+                      <small className="help-text help-text--compact">
+                        This image applies to all steps. You can override it. Max size: 2 MB.
+                      </small>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="editor-section editor-section--spaced">
+                <IDXTitle htmlTag="h3">Redirect Settings</IDXTitle>
+                <div className="form-grid form-grid--spaced">
+                  <div className="form-group full-width">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        className="checkbox-input"
+                        checked={values.redirect_on_submit || false}
+                        onChange={e => setFieldValue('redirect_on_submit', e.target.checked)}
+                      />
+                      <span>Redirect on Submit</span>
+                    </label>
+                    <small className="help-text help-text--spaced">
+                      When enabled, users will be redirected to a custom URL after submitting the form
+                    </small>
+                  </div>
+
+                  {values.redirect_on_submit && (
+                    <div className="form-group full-width">
+                      <label>Redirect URL *</label>
+                      <Field
+                        type="url"
+                        name="redirect_url"
+                        placeholder="https://example.com/thank-you"
+                        className="form-input"
+                      />
+                      <FormErrorMessage name="redirect_url" />
+                      <small className="help-text help-text--compact">
+                        Enter the full URL where users will be redirected after form submission
+                      </small>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Footer */}
+          <div className="editor-footer">
             <IDXButton onClick={onCancel}>
               Cancel
             </IDXButton>
