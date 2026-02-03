@@ -5,7 +5,7 @@ import { IdxForm, QuestionType } from '../interfaces/responses';
 import { FormErrorMessage } from './FormErrorMessage';
 import { IDXButton } from '../../core/components';
 import { IDXTitle } from '../../core/components/IDXTitle';
-import { BEDS_BATHS_OPTIONS, PRICE_OPTIONS } from '../constants';
+import { BEDS_BATHS_OPTIONS, PRICE_OPTIONS, PROPERTY_TYPE_OPTIONS } from '../constants';
 import { OptionInput } from './OptionInput';
 
 export const FormSteps = () => {
@@ -187,11 +187,13 @@ export const FormSteps = () => {
                                 const newType = e.target.value as QuestionType;
                                 setFieldValue(`steps[${index}].questionType`, newType);
 
-                                // Load predefined options for Beds, Baths, Price
+                                // Load predefined options for Beds, Baths, Price, PropertyType
                                 if (newType === QuestionType.Beds || newType === QuestionType.Baths) {
                                   setFieldValue(`steps[${index}].options`, [...BEDS_BATHS_OPTIONS]);
                                 } else if (newType === QuestionType.Price) {
                                   setFieldValue(`steps[${index}].options`, [...PRICE_OPTIONS]);
+                                } else if (newType === QuestionType.PropertyType) {
+                                  setFieldValue(`steps[${index}].options`, [...PROPERTY_TYPE_OPTIONS]);
                                 } else if (newType !== QuestionType.SelectSingle) {
                                   // Clear options for types that don't use them
                                   setFieldValue(`steps[${index}].options`, []);
@@ -246,7 +248,8 @@ export const FormSteps = () => {
                         {(step.questionType === QuestionType.SelectSingle ||
                           step.questionType === QuestionType.Beds ||
                           step.questionType === QuestionType.Baths ||
-                          step.questionType === QuestionType.Price) && (
+                          step.questionType === QuestionType.Price ||
+                          step.questionType === QuestionType.PropertyType) && (
                           <FieldArray name={`steps[${index}].options`}>
                             {({ push, remove, form }) => (
                               <>

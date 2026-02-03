@@ -88,7 +88,7 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
         if (is_default) return true;
 
         // tipos que no requieren opciones
-        const typesWithoutOptions = ['text', 'address', 'property_type'];
+        const typesWithoutOptions = ['text', 'address'];
         if (typesWithoutOptions.includes(questionType)) return true;
 
         // de lo contrario, validar que sea un array con al menos un elemento

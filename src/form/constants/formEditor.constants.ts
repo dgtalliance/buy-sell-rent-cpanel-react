@@ -7,6 +7,14 @@ export const BEDS_BATHS_OPTIONS: StepOption[] = [
   { label: '4+', value: '4+' },
 ];
 
+export const PROPERTY_TYPE_OPTIONS: StepOption[] = [
+  { label: 'Single Family Homes', value: 'homes' },
+  { label: 'Condominiums', value: 'condos' },
+  { label: 'Townhouses', value: 'townhouse' },
+  { label: 'Multi-family', value: 'multifamily' },
+  { label: 'Vacant Land', value: 'vacantland' },
+];
+
 export const PRICE_OPTIONS: StepOption[] = [
   { label: '$0 - $100K', value: '0-100000' },
   { label: '$100K - $250K', value: '100000-250000' },
