@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { useIdxFormsService } from '../hooks';
 import { config } from '../../core/config';
-import { IdxForm } from '../interfaces/responses';
+import { FormType, IdxForm } from '../interfaces/responses';
 import { FormErrorMessage } from './FormErrorMessage';
 import { useToast } from '../../core/hooks';
 import { BackgroundImageUploader } from '.';
@@ -111,7 +111,7 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
           .nullable()
           .when('redirect_on_submit', {
             is: true,
-            then: schema => schema.url('Please enter a valid URL').required('Redirect URL is required'),
+            then: schema => schema.required('Redirect is required'),
           }),
       })}
       onSubmit={(values, { setSubmitting }) => {
@@ -223,7 +223,6 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
           {activeTab === 'form' && (
             <>
               <SlugSync isEditMode={isEditMode} />
-              <Field type="hidden" name="form_type" />
               <FormSteps />
             </>
           )}
@@ -234,7 +233,7 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
               <div className="editor-section">
                 <IDXTitle htmlTag="h3">General Settings</IDXTitle>
                 <div className="form-grid" style={{ marginTop: '16px' }}>
-                  <div className="form-group full-width">
+                  <div className="form-group">
                     <label>Form Name *</label>
                     <Field
                       type="text"
@@ -243,6 +242,19 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
                       className="form-input"
                     />
                     <FormErrorMessage name="name" />
+                  </div>
+                  <div className="form-group">
+                    <label>Form Type *</label>
+                    <select
+                      value={values.form_type}
+                      onChange={e => setFieldValue('form_type', e.target.value)}
+                      className="form-select"
+                    >
+                      <option value={FormType.Buy}>Buy</option>
+                      <option value={FormType.Sell}>Sell</option>
+                      <option value={FormType.Rent}>Rent</option>
+                    </select>
+                    <FormErrorMessage name="form_type" />
                   </div>
                   <div className="form-group">
                     <label>Slug (URL)</label>
@@ -277,33 +289,38 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
                 <IDXTitle htmlTag="h3">Redirect Settings</IDXTitle>
                 <div className="form-grid form-grid--spaced">
                   <div className="form-group full-width">
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        className="checkbox-input"
-                        checked={values.redirect_on_submit || false}
-                        onChange={e => setFieldValue('redirect_on_submit', e.target.checked)}
-                      />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span>Redirect on Submit</span>
-                    </label>
+                      <label className="toggle-switch">
+                        <input
+                          type="checkbox"
+                          checked={values.redirect_on_submit || false}
+                          onChange={e => {
+                          setFieldValue('redirect_on_submit', e.target.checked);
+                          if (e.target.checked && !values.redirect_url) {
+                            setFieldValue('redirect_url', '/search');
+                          }
+                        }}
+                        />
+                        <span className="toggle-slider"></span>
+                      </label>
+                    </div>
                     <small className="help-text help-text--spaced">
-                      When enabled, users will be redirected to a custom URL after submitting the form
+                      Redirect to the general search page or a specific map search filter you have created.
                     </small>
                   </div>
 
                   {values.redirect_on_submit && (
                     <div className="form-group full-width">
-                      <label>Redirect URL *</label>
-                      <Field
-                        type="url"
-                        name="redirect_url"
-                        placeholder="https://example.com/thank-you"
-                        className="form-input"
-                      />
+                      <label>Redirect To *</label>
+                      <select
+                        value={values.redirect_url || '/search'}
+                        onChange={e => setFieldValue('redirect_url', e.target.value)}
+                        className="form-select"
+                      >
+                        <option value="/search">General Search (/search)</option>
+                      </select>
                       <FormErrorMessage name="redirect_url" />
-                      <small className="help-text help-text--compact">
-                        Enter the full URL where users will be redirected after form submission
-                      </small>
                     </div>
                   )}
                 </div>

@@ -212,7 +212,7 @@ export const FormSteps = () => {
                               <option value={QuestionType.PropertyType}>Property Type</option>
                               <option value={QuestionType.Beds}>Beds</option>
                               <option value={QuestionType.Baths}>Baths</option>
-                              <option value={QuestionType.Price}>Price</option>
+                              <option value={QuestionType.Price}>Price Range</option>
                             </select>
                             <FormErrorMessage name={`steps[${index}].questionType`} />
                             {step.questionType === QuestionType.Address && (

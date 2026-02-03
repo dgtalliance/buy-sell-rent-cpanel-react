@@ -54,7 +54,7 @@ export const FormsList = () => {
       <Modal
         open={isOpen}
         style={{ top: 20 }}
-        width="1200px"
+        width="900px"
         footer={[]}
         closable={false}
         onCancel={onClose}

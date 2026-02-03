@@ -19,7 +19,7 @@ export const PRICE_OPTIONS: StepOption[] = [
 export const DEFAULT_FORM_VALUES: Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key' | 'id'> = {
   name: 'New Form',
   slug: '',
-  form_type: FormType.Custom,
+  form_type: FormType.Buy,
   background_image: null,
   redirect_on_submit: false,
   redirect_url: null,
