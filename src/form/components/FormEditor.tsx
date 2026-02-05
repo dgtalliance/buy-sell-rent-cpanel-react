@@ -296,11 +296,11 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
                           type="checkbox"
                           checked={values.redirect_on_submit || false}
                           onChange={e => {
-                          setFieldValue('redirect_on_submit', e.target.checked);
-                          if (e.target.checked && !values.redirect_url) {
-                            setFieldValue('redirect_url', '/search');
-                          }
-                        }}
+                            setFieldValue('redirect_on_submit', e.target.checked);
+                            if (e.target.checked && !values.redirect_url) {
+                              setFieldValue('redirect_url', '/search');
+                            }
+                          }}
                         />
                         <span className="toggle-slider"></span>
                       </label>
@@ -311,17 +311,33 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
                   </div>
 
                   {values.redirect_on_submit && (
-                    <div className="form-group full-width">
-                      <label>Redirect To *</label>
-                      <select
-                        value={values.redirect_url || '/search'}
-                        onChange={e => setFieldValue('redirect_url', e.target.value)}
-                        className="form-select"
-                      >
-                        <option value="/search">General Search (/search)</option>
-                      </select>
-                      <FormErrorMessage name="redirect_url" />
-                    </div>
+                    <>
+                      <div className="form-group full-width">
+                        <label>Redirect To *</label>
+                        <select
+                          value={values.redirect_url || '/search'}
+                          onChange={e => setFieldValue('redirect_url', e.target.value)}
+                          className="form-select"
+                        >
+                          <option value="/search">General Search (/search)</option>
+                        </select>
+                        <FormErrorMessage name="redirect_url" />
+                      </div>
+                      <div className="form-group full-width">
+                        <label>Redirect Message</label>
+                        <textarea
+                          value={values.redirect_message || ''}
+                          onChange={e => setFieldValue('redirect_message', e.target.value)}
+                          className="form-textarea"
+                          rows={5}
+                          placeholder="Enter a message to show users before redirecting..."
+                        />
+                        <small className="help-text help-text--compact">
+                          This message will be shown to users after submitting the form, before
+                          redirecting to the search page.
+                        </small>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -330,9 +346,7 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
 
           {/* Footer */}
           <div className="editor-footer">
-            <IDXButton onClick={onCancel}>
-              Cancel
-            </IDXButton>
+            <IDXButton onClick={onCancel}>Cancel</IDXButton>
             <IDXButton type="primary" onClick={() => handleSubmit()}>
               SAVE
             </IDXButton>

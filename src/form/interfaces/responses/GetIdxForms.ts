@@ -18,6 +18,7 @@ export interface IdxForm {
   background_image: string | null;
   redirect_on_submit: boolean;
   redirect_url: string | null;
+  redirect_message: string | null;
 }
 
 export interface StepOption {
@@ -31,10 +32,12 @@ export interface Step {
   options: StepOption[];
   order: number;
   is_default: boolean;
+  placeholder?: string;
 }
 
 export enum QuestionType {
   SelectSingle = 'select_single',
+  SelectMultiple = 'multi_select',
   Contact = 'contact',
   Text = 'text',
   Address = 'address',

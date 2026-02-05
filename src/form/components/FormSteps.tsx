@@ -49,7 +49,7 @@ export const FormSteps = () => {
               Form Steps ({values.steps.filter(s => !s.is_default).length})
             </IDXTitle>
             <IDXButton
-              type='default'
+              type="default"
               onClick={() => {
                 const hasUnconfiguredStep = values.steps.some(
                   step => !step.is_default && !step.question.trim()
@@ -93,7 +93,10 @@ export const FormSteps = () => {
                         style={{ background: '#f0fdf4', cursor: 'default' }}
                       >
                         <div className="step-header-left">
-                          <span className="step-number" style={{ background: '#676767', color: 'white' }}>
+                          <span
+                            className="step-number"
+                            style={{ background: '#676767', color: 'white' }}
+                          >
                             Final
                           </span>
                           <span className="step-question-preview">{step.question}</span>
@@ -140,7 +143,10 @@ export const FormSteps = () => {
                     >
                       <div className="step-header-left">
                         <span className="step-number">Step {index + 1}</span>
-                        <span className="step-question-preview" style={!step.question ? { color: '#86868b', fontStyle: 'italic' } : {}}>
+                        <span
+                          className="step-question-preview"
+                          style={!step.question ? { color: '#86868b', fontStyle: 'italic' } : {}}
+                        >
                           {step.question || 'Enter question...'}
                         </span>
                         {step.questionType === QuestionType.Address && (
@@ -188,13 +194,24 @@ export const FormSteps = () => {
                                 setFieldValue(`steps[${index}].questionType`, newType);
 
                                 // Load predefined options for Beds, Baths, Price, PropertyType
-                                if (newType === QuestionType.Beds || newType === QuestionType.Baths) {
+                                if (
+                                  newType === QuestionType.Beds ||
+                                  newType === QuestionType.Baths
+                                ) {
                                   setFieldValue(`steps[${index}].options`, [...BEDS_BATHS_OPTIONS]);
                                 } else if (newType === QuestionType.Price) {
                                   setFieldValue(`steps[${index}].options`, [...PRICE_OPTIONS]);
                                 } else if (newType === QuestionType.PropertyType) {
-                                  setFieldValue(`steps[${index}].options`, [...PROPERTY_TYPE_OPTIONS]);
-                                } else if (newType !== QuestionType.SelectSingle) {
+                                  setFieldValue(`steps[${index}].options`, [
+                                    ...PROPERTY_TYPE_OPTIONS,
+                                  ]);
+                                } else if (
+                                  newType === QuestionType.SelectSingle ||
+                                  newType === QuestionType.SelectMultiple
+                                ) {
+                                  // Add a default empty option for Single/Multi Select
+                                  setFieldValue(`steps[${index}].options`, [{ label: '', value: '' }]);
+                                } else {
                                   // Clear options for types that don't use them
                                   setFieldValue(`steps[${index}].options`, []);
                                 }
@@ -202,15 +219,14 @@ export const FormSteps = () => {
                               className="form-select"
                             >
                               <option value={QuestionType.SelectSingle}>Single Select</option>
+                              <option value={QuestionType.SelectMultiple}>Multi Select</option>
                               <option value={QuestionType.Text}>Text</option>
                               {(values.steps.findIndex(
+                                item => item.questionType === QuestionType.Address
+                              ) === index ||
+                                values.steps.findIndex(
                                   item => item.questionType === QuestionType.Address
-                                ) === index ||
-                                  values.steps.findIndex(
-                                    item => item.questionType === QuestionType.Address
-                                  ) === -1) && (
-                                  <option value={QuestionType.Address}>Address</option>
-                                )}
+                                ) === -1) && <option value={QuestionType.Address}>Address</option>}
                               <option value={QuestionType.PropertyType}>Property Type</option>
                               <option value={QuestionType.Beds}>Beds</option>
                               <option value={QuestionType.Baths}>Baths</option>
@@ -243,9 +259,21 @@ export const FormSteps = () => {
                               </div>
                             )}
                           </div>
+                          {step.questionType === QuestionType.Text && (
+                            <div className="form-group">
+                              <label>Placeholder</label>
+                              <Field
+                                type="text"
+                                name={`steps[${index}].placeholder`}
+                                placeholder="e.g: Enter your answer here..."
+                                className="form-input"
+                              />
+                            </div>
+                          )}
                         </div>
 
                         {(step.questionType === QuestionType.SelectSingle ||
+                          step.questionType === QuestionType.SelectMultiple ||
                           step.questionType === QuestionType.Beds ||
                           step.questionType === QuestionType.Baths ||
                           step.questionType === QuestionType.Price ||
@@ -279,10 +307,22 @@ export const FormSteps = () => {
                                         padding: '0 4px',
                                       }}
                                     >
-                                      <span style={{ fontSize: '12px', color: '#86868b', fontWeight: 500 }}>
+                                      <span
+                                        style={{
+                                          fontSize: '12px',
+                                          color: '#86868b',
+                                          fontWeight: 500,
+                                        }}
+                                      >
                                         Label
                                       </span>
-                                      <span style={{ fontSize: '12px', color: '#86868b', fontWeight: 500 }}>
+                                      <span
+                                        style={{
+                                          fontSize: '12px',
+                                          color: '#86868b',
+                                          fontWeight: 500,
+                                        }}
+                                      >
                                         Value
                                       </span>
                                       <span style={{ width: '36px' }}></span>
@@ -315,7 +355,6 @@ export const FormSteps = () => {
                             )}
                           </FieldArray>
                         )}
-
                       </div>
                     )}
                   </div>

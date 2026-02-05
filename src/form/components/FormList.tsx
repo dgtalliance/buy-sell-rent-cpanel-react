@@ -66,8 +66,8 @@ export const FormsList = () => {
         <div className="forms-header">
           <IDXTitle htmlTag="h1">Lead Generation Forms ({idxForms?.length})</IDXTitle>
           <IDXButton type='primary' onClick={() => {
-            setFormId(undefined);
-            onOpen();
+              setFormId(undefined);
+              onOpen();
           }}>
             CREATE NEW FORM
           </IDXButton>
@@ -94,8 +94,8 @@ export const FormsList = () => {
                 </div>
                 <div className="forms-grid-cell">
                   <span className="form-name" onClick={() => {
-                    setFormId(form.id);
-                    onOpen();
+                      setFormId(form.id);
+                      onOpen();
                   }}>{form.name}</span>
                 </div>
                 <div className="forms-grid-cell">
@@ -117,11 +117,7 @@ export const FormsList = () => {
                   </IDXButton>
                 </div>
                 <div className="forms-grid-cell">
-                  <IDXButton
-                    type="icon"
-                    onClick={() => handleDelete(form.id, form.name)}
-                    disabled={form.form_type === 'buy' || form.form_type === 'sell' || form.form_type === 'rent'}
-                  >
+                  <IDXButton type="icon" onClick={() => handleDelete(form.id, form.name)}>
                     <Delete />
                   </IDXButton>
                 </div>

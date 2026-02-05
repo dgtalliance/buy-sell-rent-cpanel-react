@@ -24,13 +24,21 @@ export const PRICE_OPTIONS: StepOption[] = [
   { label: '$1M+', value: '1000000+' },
 ];
 
-export const DEFAULT_FORM_VALUES: Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key' | 'id'> = {
+export const DEFAULT_FORM_VALUES: Omit<
+  IdxForm,
+  'created_at' | 'modified_in' | 'registration_key' | 'id'
+> = {
   name: 'New Form',
   slug: '',
   form_type: FormType.Buy,
   background_image: null,
   redirect_on_submit: false,
   redirect_url: null,
+  redirect_message: `For a personalized valuation that accounts for your property's unique features, one of our experts will contact you shortly.
+
+You can now view properties sold within the last 6 months in your micro-area. Modify the filters to explore different scenarios.
+
+If you would like a more detailed report, feel free to reach out.`,
   steps: [
     {
       question: 'Contact Information',
