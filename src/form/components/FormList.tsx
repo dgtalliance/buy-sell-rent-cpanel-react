@@ -37,7 +37,10 @@ export const FormsList = () => {
             notify('Form deleted successfully.', { type: 'success', position: 'top-right' });
             loadForms();
           } catch {
-            notify('Error deleting form. Please try again.', { type: 'error', position: 'top-right' });
+            notify('Error deleting form. Please try again.', {
+              type: 'error',
+              position: 'top-right',
+            });
           }
         },
       });
@@ -65,10 +68,13 @@ export const FormsList = () => {
       <div className="forms-module-container">
         <div className="forms-header">
           <IDXTitle htmlTag="h1">Lead Generation Forms ({idxForms?.length})</IDXTitle>
-          <IDXButton type='primary' onClick={() => {
+          <IDXButton
+            type="primary"
+            onClick={() => {
               setFormId(undefined);
               onOpen();
-          }}>
+            }}
+          >
             CREATE NEW FORM
           </IDXButton>
         </div>
@@ -93,17 +99,26 @@ export const FormsList = () => {
                   <input type="checkbox" />
                 </div>
                 <div className="forms-grid-cell">
-                  <span className="form-name" onClick={() => {
+                  <span
+                    className="form-name"
+                    onClick={() => {
                       setFormId(form.id);
                       onOpen();
-                  }}>{form.name}</span>
+                    }}
+                  >
+                    {form.name}
+                  </span>
                 </div>
                 <div className="forms-grid-cell">
                   <span className="form-type-badge">{form.form_type}</span>
                 </div>
                 <div className="forms-grid-cell">{form.steps.length}</div>
-                <div className="forms-grid-cell">{moment(form.created_at).format('DD/MM/YYYY')}</div>
-                <div className="forms-grid-cell">{moment(form.modified_in).format('DD/MM/YYYY')}</div>
+                <div className="forms-grid-cell">
+                  {moment(form.created_at).format('DD/MM/YYYY')}
+                </div>
+                <div className="forms-grid-cell">
+                  {moment(form.modified_in).format('DD/MM/YYYY')}
+                </div>
                 <div className="forms-grid-cell">No data</div>
                 <div className="forms-grid-cell">
                   <IDXButton

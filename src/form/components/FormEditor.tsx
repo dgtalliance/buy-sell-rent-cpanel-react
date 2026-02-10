@@ -20,14 +20,20 @@ interface FormEditorProps {
   onSuccess?: () => void;
 }
 
-export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }: FormEditorProps) => {
+export const FormEditor = ({
+  formId,
+  onCancel = () => {},
+  onSuccess = () => {},
+}: FormEditorProps) => {
   const idxFormsService = useIdxFormsService();
   const { notify } = useToast();
 
   const isEditMode = !!formId;
 
   const [initialFormValues, setInitialFormValues] =
-    useState<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key' | 'id'>>(DEFAULT_FORM_VALUES);
+    useState<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key' | 'id'>>(
+      DEFAULT_FORM_VALUES
+    );
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
@@ -189,7 +195,26 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
               {values.name || 'New Form'}
             </h3>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <IDXButton type="default" onClick={() => {}}>
+              <IDXButton
+                type="default"
+                onClick={() => {
+                  const now = new Date();
+                  window.IDXFormPreview?.openFormPreview({
+                    id: formId || 'preview',
+                    name: values.name,
+                    slug: values.slug,
+                    form_type: values.form_type,
+                    steps: values.steps,
+                    background_image: values.background_image,
+                    redirect_on_submit: values.redirect_on_submit,
+                    redirect_url: values.redirect_url,
+                    redirect_message: values.redirect_message,
+                    registration_key: config.user.registrationKey,
+                    created_at: now,
+                    modified_in: now,
+                  });
+                }}
+              >
                 <Visibility style={{ marginRight: '8px' }} />
                 PREVIEW
               </IDXButton>
@@ -263,10 +288,19 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
                       value={values.slug}
                       className="form-input"
                       disabled
-                      style={{ backgroundColor: '#f5f5f7', cursor: 'not-allowed', color: '#86868b' }}
+                      style={{
+                        backgroundColor: '#f5f5f7',
+                        cursor: 'not-allowed',
+                        color: '#86868b',
+                      }}
                     />
                     <small
-                      style={{ color: '#86868b', fontSize: '12px', marginTop: '4px', display: 'block' }}
+                      style={{
+                        color: '#86868b',
+                        fontSize: '12px',
+                        marginTop: '4px',
+                        display: 'block',
+                      }}
                     >
                       The slug is automatically generated from the name
                     </small>
@@ -306,7 +340,8 @@ export const FormEditor = ({ formId, onCancel = () => {}, onSuccess = () => {} }
                       </label>
                     </div>
                     <small className="help-text help-text--spaced">
-                      Redirect to the general search page or a specific map search filter you have created.
+                      Redirect to the general search page or a specific map search filter you have
+                      created.
                     </small>
                   </div>
 

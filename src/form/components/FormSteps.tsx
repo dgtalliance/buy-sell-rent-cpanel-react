@@ -210,7 +210,9 @@ export const FormSteps = () => {
                                   newType === QuestionType.SelectMultiple
                                 ) {
                                   // Add a default empty option for Single/Multi Select
-                                  setFieldValue(`steps[${index}].options`, [{ label: '', value: '' }]);
+                                  setFieldValue(`steps[${index}].options`, [
+                                    { label: '', value: '' },
+                                  ]);
                                 } else {
                                   // Clear options for types that don't use them
                                   setFieldValue(`steps[${index}].options`, []);

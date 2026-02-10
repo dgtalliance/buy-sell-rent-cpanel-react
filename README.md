@@ -8,8 +8,8 @@ This project contains the Form Builder used in the Cpanel for **Buy, Sell, and R
 
 ## Requirements
 
-* Node.js (LTS recommended)
-* Yarn
+- Node.js (LTS recommended)
+- Yarn
 
 ---
 
@@ -51,9 +51,9 @@ The build output will be generated in the `./dist` directory.
 
 ### Repository Information
 
-* **Repository:** [`idxboost-cpanel`](https://github.com/dgtalliance/idxboost-cpanel/tree/dev)
-* **Branch:** `dev`
-* **Target Path:**
+- **Repository:** [`idxboost-cpanel`](https://github.com/dgtalliance/idxboost-cpanel/tree/dev)
+- **Branch:** `dev`
+- **Target Path:**
 
   ```
   src/CpanelBundle/Resources/public/idx-forms/
@@ -71,12 +71,13 @@ The build output will be generated in the `./dist` directory.
 
 3. Rename the generated files:
 
-   * Rename the main `.css` file to:
+   - Rename the main `.css` file to:
 
      ```
      index.css
      ```
-   * Rename the main `.js` file to:
+
+   - Rename the main `.js` file to:
 
      ```
      index.js
@@ -94,5 +95,5 @@ The build output will be generated in the `./dist` directory.
 
 ## Notes
 
-* Make sure old cached assets are cleared if changes are not reflected.
-* Always deploy from the **dev** branch.
+- Make sure old cached assets are cleared if changes are not reflected.
+- Always deploy from the **dev** branch.

@@ -9,7 +9,8 @@ interface OptionInputProps {
 }
 
 export const OptionInput = ({ stepIndex, optIndex }: OptionInputProps) => {
-  const { values, setFieldValue } = useFormikContext<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key'>>();
+  const { values, setFieldValue } =
+    useFormikContext<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key'>>();
   const [isValueManuallyEdited, setIsValueManuallyEdited] = useState(false);
 
   const option = values.steps[stepIndex]?.options?.[optIndex] as StepOption | undefined;
