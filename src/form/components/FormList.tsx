@@ -67,7 +67,7 @@ export const FormsList = () => {
       </Modal>
       <div className="forms-module-container">
         <div className="forms-header">
-          <IDXTitle htmlTag="h1">Lead Generation Forms ({idxForms?.length})</IDXTitle>
+          <IDXTitle htmlTag="h1">Lead Collector ({idxForms?.length})</IDXTitle>
           <IDXButton
             type="primary"
             onClick={() => {
@@ -88,7 +88,6 @@ export const FormsList = () => {
             <div className="forms-grid-cell">STEPS</div>
             <div className="forms-grid-cell">DATE CREATED</div>
             <div className="forms-grid-cell">LAST UPDATE</div>
-            <div className="forms-grid-cell">SUBMISSIONS</div>
             <div className="forms-grid-cell">EDIT</div>
             <div className="forms-grid-cell">DELETE</div>
           </div>
@@ -119,7 +118,6 @@ export const FormsList = () => {
                 <div className="forms-grid-cell">
                   {moment(form.modified_in).format('DD/MM/YYYY')}
                 </div>
-                <div className="forms-grid-cell">No data</div>
                 <div className="forms-grid-cell">
                   <IDXButton
                     type="icon"

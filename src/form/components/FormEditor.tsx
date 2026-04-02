@@ -1,10 +1,10 @@
 import { Field, Formik } from 'formik';
 import { Close, Visibility } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Yup from 'yup';
 import { useIdxFormsService } from '../hooks';
 import { config } from '../../core/config';
-import { FormType, IdxForm } from '../interfaces/responses';
+import { FormType, IdxForm, ListFilter } from '../interfaces/responses';
 import { FormErrorMessage } from './FormErrorMessage';
 import { useToast } from '../../core/hooks';
 import { BackgroundImageUploader } from '.';
@@ -40,6 +40,19 @@ export const FormEditor = ({
   const [activeTab, setActiveTab] = useState<'form' | 'settings'>('form');
 
   const [currentFile, setCurrentFile] = useState<File>();
+  const [listFilters, setListFilters] = useState<ListFilter[]>([]);
+  const [redirectDropdownOpen, setRedirectDropdownOpen] = useState(false);
+  const redirectDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (redirectDropdownRef.current && !redirectDropdownRef.current.contains(e.target as Node)) {
+        setRedirectDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleEditName = () => {
     setIsEditingName(true);
@@ -67,6 +80,13 @@ export const FormEditor = ({
       });
   }, [formId]);
 
+  useEffect(() => {
+    idxFormsService
+      .listFilters(config.user.registrationKey)
+      .then(data => setListFilters(data))
+      .catch(() => {});
+  }, []);
+
   const stepSchema = Yup.object({
     order: Yup.number(),
     is_default: Yup.boolean(),
@@ -80,6 +100,7 @@ export const FormEditor = ({
       if (is_default) return true;
       return !!value;
     }),
+    subtitle: Yup.string().optional(),
     options: Yup.array()
       .of(
         Yup.object({
@@ -331,9 +352,6 @@ export const FormEditor = ({
                           checked={values.redirect_on_submit || false}
                           onChange={e => {
                             setFieldValue('redirect_on_submit', e.target.checked);
-                            if (e.target.checked && !values.redirect_url) {
-                              setFieldValue('redirect_url', '/search');
-                            }
                           }}
                         />
                         <span className="toggle-slider"></span>
@@ -349,13 +367,82 @@ export const FormEditor = ({
                     <>
                       <div className="form-group full-width">
                         <label>Redirect To *</label>
-                        <select
-                          value={values.redirect_url || '/search'}
-                          onChange={e => setFieldValue('redirect_url', e.target.value)}
-                          className="form-select"
-                        >
-                          <option value="/search">General Search (/search)</option>
-                        </select>
+                        <div ref={redirectDropdownRef} style={{ position: 'relative' }}>
+                          <div
+                            className="form-select"
+                            onClick={() => setRedirectDropdownOpen(v => !v)}
+                            style={{
+                              cursor: 'pointer',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <span>
+                              {(() => {
+                                const url = values.redirect_url || '/search';
+                                if (url === '/search') return 'Search Result Page - /search';
+                                const found = listFilters.find(f => f.value === url);
+                                return found ? found.name : url;
+                              })()}
+                            </span>
+                            <span style={{ fontSize: '10px', color: '#86868b' }}>
+                              {redirectDropdownOpen ? '▲' : '▼'}
+                            </span>
+                          </div>
+                          {redirectDropdownOpen && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: '100%',
+                                left: 0,
+                                right: 0,
+                                maxHeight: '180px',
+                                overflowY: 'auto',
+                                background: 'white',
+                                border: '1px solid #d2d2d7',
+                                borderRadius: '0 0 8px 8px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                zIndex: 10,
+                              }}
+                            >
+                              {[
+                                { name: 'Search Result Page - /search', value: '/search' },
+                                ...listFilters,
+                              ].map(filter => (
+                                <div
+                                  key={filter.value}
+                                  onClick={() => {
+                                    setFieldValue('redirect_url', filter.value);
+                                    setRedirectDropdownOpen(false);
+                                  }}
+                                  style={{
+                                    padding: '8px 12px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    background:
+                                      (values.redirect_url || '/search') === filter.value
+                                        ? '#f0f0f5'
+                                        : 'transparent',
+                                    fontWeight:
+                                      (values.redirect_url || '/search') === filter.value
+                                        ? 500
+                                        : 400,
+                                  }}
+                                  onMouseEnter={e => (e.currentTarget.style.background = '#f5f5f7')}
+                                  onMouseLeave={e =>
+                                    (e.currentTarget.style.background =
+                                      (values.redirect_url || '/search') === filter.value
+                                        ? '#f0f0f5'
+                                        : 'transparent')
+                                  }
+                                >
+                                  {filter.name}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                         <FormErrorMessage name="redirect_url" />
                       </div>
                       <div className="form-group full-width">

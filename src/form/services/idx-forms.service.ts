@@ -1,5 +1,5 @@
 import { config } from '../../core/config';
-import { GetIdxForms, IdxForm } from '../interfaces/responses';
+import { GetIdxForms, IdxForm, ListFilter } from '../interfaces/responses';
 
 export class IdxFormsService {
   private baseUrl = `${config.api.idxboost}/idxforms`;
@@ -75,6 +75,14 @@ export class IdxFormsService {
     });
 
     if (!res.ok) throw new Error('Error updating idxform');
+    return res.json();
+  }
+
+  async listFilters(registration_key: string): Promise<ListFilter[]> {
+    const res = await fetch(
+      `${config.api.idxboost}/market_listings/list_filters/${registration_key}`
+    );
+    if (!res.ok) throw new Error('Error fetching list filters');
     return res.json();
   }
 

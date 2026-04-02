@@ -13,6 +13,7 @@ export const FormSteps = () => {
     useFormikContext<Omit<IdxForm, 'created_at' | 'modified_in' | 'registration_key'>>();
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
   const [draggedStep, setDraggedStep] = useState<number | null>(null);
+  const [contactExpanded, setContactExpanded] = useState(false);
 
   const handleDragStart = (index: number) => {
     setDraggedStep(index);
@@ -85,12 +86,13 @@ export const FormSteps = () => {
                   return (
                     <div
                       key={index}
-                      className="step-card"
+                      className={`step-card ${contactExpanded ? 'expanded' : ''}`}
                       style={{ borderColor: '#34d399', background: '#f0fdf4' }}
                     >
                       <div
                         className="step-header"
-                        style={{ background: '#f0fdf4', cursor: 'default' }}
+                        style={{ background: '#f0fdf4', cursor: 'pointer' }}
+                        onClick={() => setContactExpanded(v => !v)}
                       >
                         <div className="step-header-left">
                           <span
@@ -118,8 +120,35 @@ export const FormSteps = () => {
                           <span style={{ fontSize: '12px', color: '#86868b' }}>
                             Email, Name, Phone, Comments
                           </span>
+                          <button className="icon-btn">
+                            {contactExpanded ? <ExpandLess /> : <ExpandMore />}
+                          </button>
                         </div>
                       </div>
+                      {contactExpanded && (
+                        <div className="step-body">
+                          <div className="form-grid">
+                            <div className="form-group full-width">
+                              <label>Title</label>
+                              <Field
+                                type="text"
+                                name={`steps[${index}].question`}
+                                placeholder="e.g: Contact Information"
+                                className="form-input"
+                              />
+                            </div>
+                            <div className="form-group full-width">
+                              <label>Description</label>
+                              <Field
+                                type="text"
+                                name={`steps[${index}].subtitle`}
+                                placeholder="e.g: We'll reach out shortly..."
+                                className="form-input"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 }
@@ -131,15 +160,15 @@ export const FormSteps = () => {
                     className={`step-card ${expandedStep === index ? 'expanded' : ''} ${
                       draggedStep === index ? 'dragging' : ''
                     }`}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
                     onDragOver={e => handleDragOver(e, index)}
                     onDrop={e => handleDrop(e, index)}
-                    style={{ cursor: 'move' }}
                   >
                     <div
                       className="step-header"
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
                       onClick={() => setExpandedStep(expandedStep === index ? null : index)}
+                      style={{ cursor: 'grab' }}
                     >
                       <div className="step-header-left">
                         <span className="step-number">Step {index + 1}</span>
@@ -184,6 +213,15 @@ export const FormSteps = () => {
                               autoFocus
                             />
                             <FormErrorMessage name={`steps[${index}].question`} />
+                          </div>
+                          <div className="form-group full-width">
+                            <label>Description</label>
+                            <Field
+                              type="text"
+                              name={`steps[${index}].subtitle`}
+                              placeholder="e.g: Tell us more about what you're looking for..."
+                              className="form-input"
+                            />
                           </div>
                           <div className="form-group">
                             <label>Field Type</label>
@@ -339,7 +377,11 @@ export const FormSteps = () => {
                                           alignItems: 'start',
                                         }}
                                       >
-                                        <OptionInput stepIndex={index} optIndex={optIndex} />
+                                        <OptionInput
+                                          stepIndex={index}
+                                          optIndex={optIndex}
+                                          questionType={step.questionType}
+                                        />
                                         <button
                                           className="btn-delete-option icon-btn"
                                           onClick={() => {

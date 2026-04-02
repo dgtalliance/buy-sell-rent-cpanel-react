@@ -26,6 +26,11 @@ export interface StepOption {
   value: string;
 }
 
+export interface ListFilter {
+  name: string;
+  value: string;
+}
+
 export interface Step {
   question: string;
   questionType: QuestionType;
@@ -33,6 +38,7 @@ export interface Step {
   order: number;
   is_default: boolean;
   placeholder?: string;
+  subtitle?: string;
 }
 
 export enum QuestionType {
